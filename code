@@ -1,0 +1,141 @@
+from tkinter import *
+from tkinter import ttk, messagebox
+
+
+class Item:
+    name: str
+    price: int
+    description: str
+    category: str
+
+    def __init__(self, name, price, description, category):
+        self.name = name
+        self.price = price
+        self.description = description
+        self.category = category
+
+    def __str__(self):
+        return f"{self.name} {self.price}"
+
+
+categories = ["Електроніка", "Одяг", "Їжа", "Спорт", "Автотовари", "інше"]
+
+Items: list[Item] = []
+
+
+def labeled_entry(parent, label_text, row, var=None):
+    Label(parent, text=label_text,
+          bg="#1a1a1a", fg="#888888", font=("Courier New", 8), anchor="w").grid(row=row * 2, column=0, sticky="w",
+                                                                                padx=10, pady=(8, 0))
+
+    e = Entry(parent,
+              bg="#111111", fg="#f0f0f0",
+              insertbackground="#e8c84a",
+              relief="flat", bd=0,
+              highlightthickness=1,
+              highlightbackground="#2e2e2e",
+              font=("Courier New", 10),
+              textvariable=var)
+    e.grid(row=row * 2 + 1, column=0, sticky="ew", padx=10, pady=(2, 0))
+    return e
+
+
+def flash(widget, color="#e8c84a"):
+    orig = widget.cget("highlightbackground")
+    widget.config(highlightbackground=color, highlightthickness=2)
+    widget.after(400, lambda: widget.config(highlightbackground=orig, highlightthickness=1))
+
+
+window = Tk()
+window.title("ITSTEP SHOP")
+window.geometry("820x600")
+window.configure(bg="#0d0d0d")
+
+header = Frame(window, bg="#000000", height=48)
+header.pack(fill="x")
+
+Label(header, text="IT STEP SHOP", bg="#000000", fg="#ffdddd", font=("Arial", 15), pady=16).pack(side="left", padx=16)
+Label(header, text="Shop manager", bg="#c0392b", fg="#ffdddd", font=("Arial", 15)).pack(side="left", padx=16)
+
+main = Frame(window, bg="#0d0d0d")
+main.pack(fill="both", expand=True, padx=12, pady=10)
+main.columnconfigure(0, weight=0)
+main.columnconfigure(0, weight=1)
+main.rowconfigure(0, weight=1)
+
+form_outer = Frame(main, bg="#2e2e2e")
+form_outer.grid(row=0, column=0, sticky="ns", padx=(0, 6))
+
+form = Frame(form_outer, bg="#1a1a1a", padx=4, pady=4)
+form.pack(fill="both", expand=True, padx=1, pady=1)
+form.columnconfigure(0, weight=1)
+
+Label(form, text="New item",
+      bg="#1a1a1a", fg="#FFFFFF",
+      font=("Arial", 14, "bold"),
+      pady=6).grid(row=0, column=0, sticky="w", padx=10)
+
+Frame(form, bg="#c0392b", height=2).grid(row=1, column=0, sticky="ew", padx=10, pady=(0, 4))
+
+cat_var = StringVar(value=categories[0])
+cat_menu = OptionMenu(form, cat_var, *categories)
+cat_menu.config(bg="#111111", fg="#f0f0f0",
+                activebackground="#e8c84a",
+                activeforeground="#0d0d0d",
+                relief="flat", bd=0,
+                font=("Courier New", 10),
+                highlightthickness=1,
+                highlightbackground="#2e2e2e",
+                width=22)
+
+cat_menu["menu"].config(bg="#111111", fg="#f0f0f0",
+                        activebackground="#e8c84a",
+                        activeforeground="#0d0d0d",
+                        font=("Courier New", 10))
+
+cat_menu.grid(row=9, column=0, sticky="ew", padx=10, pady=(2, 0))
+
+Frame(form, bg="#2e2e2e", height=1).grid(row=10, column=0, sticky="ew", padx=10, pady=12)
+
+name_entry = labeled_entry(form, "Назва", 1)
+price_entry = labeled_entry(form, "Ціна", 2)
+desc_entry = labeled_entry(form, "Опис", 3)
+
+
+def clear_form():
+    name_entry.delete(0, END)
+    price_entry.delete(0, END)
+    desc_entry.delete(0, END)
+    cat_var.set(categories[0])
+    name_entry.focus()
+
+
+def add_item():
+    name = name_entry.get().strip()
+    price = price_entry.get().strip()
+    desc = desc_entry.get().strip()
+    cat = cat_var.get()
+
+    if not name:
+        flash(name_entry, "#c0392b")
+        messagebox.showwarning("Name error", "Name is empty")
+        return
+    if not price:
+        flash(price_entry, "#c0392b")
+        messagebox.showwarning("Price error", "Price is empty")
+        return
+
+    if not desc:
+        flash(desc_entry, color="#c0392b")
+        messagebox.showwarning("Desc error", "Desc is empty")
+        return
+
+    try:
+        price_f = float(price.replace(",", "."))
+        if price_f < 0:
+            raise ValueError
+    except ValueError:
+        pass
+
+
+window.mainloop()
